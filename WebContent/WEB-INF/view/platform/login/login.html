@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>登录</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="" name="description"/>
+    <meta content="" name="author"/>
+    <link rel="stylesheet" href="${cxt!}/js/bootstrap.min.css"/>
+    <link rel="stylesheet" href="${cxt!}/js/font-awesome.min.css"/>
+    <link rel="stylesheet" href="${cxt!}/js/style.css" type="text/css"/>
+    <style type="text/css">
+        body {
+            background: #393939;
+        }
+
+        #authCodeImg {
+            display: inline-block;
+            line-height: 40px;
+            margin-left: 30px;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script type="text/javascript" src="${cxt!}/jsfile/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="${cxt!}/jsfile/layer/layer.js"></script>
+
+    <script type="text/javascript" src="${cxt!}/jsfile/jsencrypt.min.js" charset="utf-8"></script>
+
+    <script type="text/javascript">
+        var cxt = "${cxt!}";
+        var localePram = "${localePram!}";
+    </script>
+</head>
+<body class="lock">
+<div class="login-wrap">
+    <form id="loginForm" action="${cxt!}/platform/login/vali" method="post" class="form-horizontal">
+        <div class="login_table">
+            <div class="form-group">
+                <input id="login_username" name="username" class="login_input_hr" placeholder="请输入您的用户名" type="text" value="${cookieMap.userName.value!}">
+            </div>
+            <div class="form-group">
+                <input id="login_password" name="password" class="login_input_hr" placeholder="请输入密码" type="password">
+            </div>
+            <div class="form-group form-group-lg">
+                <input type="text" id="login_authCode" class="login_input_hr col-sm-6" name="authCode" placeholder="验证码" autocomplete="off">
+                <img id="authCodeImg" orgi="${cxt!}/platform/authImg" src="${cxt!}/platform/authImg" width="120" height="25" alt="点击图片更换验证码"/>
+            </div>
+            <div class="form-group col-sm-offset-2">
+                <div class="checkbox">
+                    <label>
+                        <input id="remember" name="remember" value="1" type="checkbox"> 记住帐号
+                    </label>
+                </div>
+            </div>
+            <div class="form-group login_button text-center">
+                <input type="button" class="input_button" value="登 录" onclick="return submitFunc();">
+            </div>
+            <div class="form-group hidden">
+                <div class="forgot-hint text-center mt10">
+                    <a id="forget-password" class="" href="javascript:;">忘记密码？</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    function submitFunc() {
+        // 验证账号是否存在
+        var userName = $("#login_username").val();
+        if (userName == "") {
+            layer.alert('请输入登录账号！', {
+                skin: 'layui-layer-lan',
+                closeBtn: 0,
+                shift: 4,
+                icon: 2
+            });
+            return false;
+        }
+        if (!$("#login_password").val()) {
+            layer.alert('请输入密码！', {
+                skin: 'layui-layer-lan',
+                closeBtn: 0,
+                shift: 4,
+                icon: 2
+            });
+            return false;
+        }
+        if (!$("#login_authCode").val()) {
+            layer.alert('请输入验证码！', {
+                skin: 'layui-layer-lan',
+                closeBtn: 0,
+                shift: 4,
+                icon: 2
+            });
+            return false;
+        }
+
+        // 验证账号是否可用
+        $.ajax({
+            type: "post",
+            url: encodeURI(encodeURI(cxt + "/platform/login/userName/")),
+            headers: {"localePram": localePram}, // 所有请求加上当前语言标示环境
+            data: {"userName":userName},
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            async: true,
+            cache: false,
+            success: function (data) {
+                replyProcess(data);
+            },
+            error:function (req, textStatus, errorThrown) {
+                console.log(errorThrown);
+            }
+        });
+        return false;
+    }
+
+    function replyProcess(data) {
+        if (data.result == 0) {
+            comm.alert("输入账号不存在");
+            return;
+
+        } else if (data.result == 1) {
+            comm.alert("账户已停用");
+            return;
+
+        } else if (data.result == 2) {
+            var stopDate = data.stopDate;
+            var hour = data.hour;
+            comm.alert("账号已锁定，锁定时间" + stopDate + "，锁定小时数" + hour);
+            return;
+        }
+
+        // 密钥加密
+        var publicKey = data.publicKey;
+        var passNode = $("#login_password");
+        var passWord = passNode.val();
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(publicKey);
+        var passEncode = encrypt.encrypt(passWord);
+        passNode.val(passEncode);
+
+        // 提交表单
+        $("#loginForm").submit();
+    }
+
+    $(function () {
+        // 初始化页面焦点
+        var userName = $("#login_username");
+        var passWord = $("#login_password");
+        if (userName.val() == "") {
+            userName.focus();
+        } else if (passWord.val() == "") {
+            passWord.focus();
+        } else {
+            $("#login_authCode").focus();
+        }
+
+        $("#authCodeImg").click(function () {
+            var $this = $(this);
+            var src = $this.attr("orgi") + "?rand=" + Math.random();
+            $(this).attr("src", src);
+        });
+
+        $("html").keydown(function (event) {
+            var myEvent = event || window.event;
+            switch (myEvent.keyCode) {
+                case 13://回车事件
+                    submitFunc();
+                    break;
+            }
+        });
+    });
+
+    if (top.location.href != window.location.href) {
+        top.location.replace(window.location.href);
+    }
+
+</script>
+
+</body>
+</html>

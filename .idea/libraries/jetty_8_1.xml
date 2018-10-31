@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="jetty-8.1">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/build-lib/jetty-8.1.8" />
+      <root url="file://$PROJECT_DIR$/build-lib/jetty-9.2-jdk7+" />
+      <root url="file://$PROJECT_DIR$/build-lib/jfinal3" />
+      <root url="file://$PROJECT_DIR$/build-lib/junit" />
+      <root url="file://$PROJECT_DIR$/build-lib/spring" />
+      <root url="file://$PROJECT_DIR$/build-lib/postgresql" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/build-lib/jetty-8.1.8" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/build-lib/jetty-9.2-jdk7+" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/build-lib/jfinal3" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/build-lib/junit" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/build-lib/postgresql" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/build-lib/spring" recursive="false" />
+  </library>
+</component>
